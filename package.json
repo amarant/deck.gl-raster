@@ -1,8 +1,8 @@
 {
-  "name": "@kylebarron/deck.gl-raster",
+  "name": "@amarant/deck.gl-raster",
   "description": "A collection of custom Deck.gl layers",
   "license": "MIT",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "main": "./dist/dist.js",
   "unpkg": "./dist/dist.min.js",
   "publishConfig": {
