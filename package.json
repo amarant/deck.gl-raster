@@ -2,7 +2,7 @@
   "name": "@amarant/deck.gl-raster",
   "description": "A collection of custom Deck.gl layers",
   "license": "MIT",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "main": "./dist/dist.js",
   "unpkg": "./dist/dist.min.js",
   "publishConfig": {
