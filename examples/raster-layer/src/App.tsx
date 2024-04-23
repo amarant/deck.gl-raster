@@ -6,18 +6,19 @@ import {TileLayer} from '@deck.gl/geo-layers';
 
 import {
   RasterLayer,
-  combineBands,
+  combineBands1 as combineBands,
   pansharpenBrovey,
   modifiedSoilAdjustedVegetationIndex,
   normalizedDifference,
   colormap,
-} from '@kylebarron/deck.gl-raster';
+} from '@amarant/deck.gl-raster';
 
 import {load} from '@loaders.gl/core';
 import {ImageLoader} from '@loaders.gl/images';
 
 import {vibrance} from '@luma.gl/shadertools';
-import GL from '@luma.gl/constants';
+import {GL} from '@luma.gl/constants';
+import {TileLoadProps} from '@deck.gl/geo-layers/dist/tileset-2d';
 
 const initialViewState = {
   longitude: -112.1861,
@@ -53,60 +54,57 @@ function landsatUrl(options) {
     color_ops: colorStr(bandsArray.length),
   };
   const searchParams = new URLSearchParams(params);
-  let baseUrl = `https://us-west-2-lambda.kylebarron.dev/landsat/tiles/${z}/${x}/${y}.jpg?`;
-  baseUrl += searchParams.toString();
+  let baseUrl = `https://gis.apfo.usda.gov/arcgis/rest/services/NAIP/USDA_CONUS_PRIME/ImageServer/tile/${z}/${y}/${x}`;
+  // baseUrl += searchParams.toString();
   return baseUrl;
 }
 
-const vibranceEffect = new PostProcessEffect(vibrance, {
-  amount: 1,
-});
+// const vibranceEffect = new PostProcessEffect(vibrance, {
+//   amount: 1,
+// });
 
-export default class App extends React.Component {
-  render() {
-    const layers = [
-      new TileLayer({
-        minZoom: 7,
-        maxZoom: 12,
-        tileSize: 256,
-        getTileData,
-        renderSubLayers: (props) => {
-          const {
-            bbox: {west, south, east, north},
-          } = props.tile;
-          const {modules, images, ...moduleProps} = props.data;
-          return new RasterLayer(props, {
-            images,
-            modules,
-            moduleProps,
-            bounds: [west, south, east, north],
-          });
-        },
-      }),
-    ];
+const App = () => {
+  const layers = [
+    new TileLayer({
+      minZoom: 7,
+      maxZoom: 12,
+      tileSize: 256,
+      getTileData,
+      renderSubLayers: (props) => {
+        const {
+          bbox: {west, south, east, north},
+        } = props.tile;
+        const {modules, images, ...moduleProps} = props.data;
+        return new RasterLayer(props, {
+          images,
+          modules,
+          moduleProps,
+          bounds: [west, south, east, north],
+        });
+      },
+    }),
+  ];
 
-    return (
-      <DeckGL
-        initialViewState={initialViewState}
-        layers={layers}
-        effects={[vibranceEffect]}
-        controller
-        glOptions={{
-          // Tell browser to use discrete GPU if available
-          powerPreference: 'high-performance',
-        }}
-      />
-    );
-  }
-}
+  return (
+    <DeckGL
+      initialViewState={initialViewState}
+      layers={layers}
+      // effects={[vibranceEffect]}
+      controller
+      // glOptions={{
+      //   // Tell browser to use discrete GPU if available
+      //   powerPreference: 'high-performance',
+      // }}
+    />
+  );
+};
 
-async function getTileData({
-  x,
-  y,
-  z,
-  landsatBands = [5, 4],
-  useColormap = true,
-}) {
+export default App;
+
+async function getTileData(tile: TileLoadProps) {
+  const {x, y, z} = tile.index;
+  const landsatBands = [5]; // [5, 4];
+  const useColormap = true;
   const usePan =
     z >= 12 &&
     landsatBands[0] === 4 &&
@@ -114,19 +112,19 @@ async function getTileData({
     landsatBands[2] === 2;
   const colormapUrl =
     'https://cdn.jsdelivr.net/gh/kylebarron/deck.gl-raster/assets/colormaps/cfastie.png';
-  const modules = [combineBands, normalizedDifference];
+  const modules = [combineBands, colormap];
 
   const bandsUrls = landsatBands.map((band) =>
     landsatUrl({x, y, z, bands: band, url: MOSAIC_URL})
   );
   const imageBands = bandsUrls.map((url) => loadImage(url));
 
-  let imagePan;
-  if (usePan) {
-    const panUrl = landsatUrl({x, y, z, bands: 8, url: MOSAIC_URL});
-    imagePan = loadImage(panUrl);
-    modules.push(pansharpenBrovey);
-  }
+  // let imagePan;
+  // if (usePan) {
+  //   const panUrl = landsatUrl({x, y, z, bands: 8, url: MOSAIC_URL});
+  //   imagePan = loadImage(panUrl);
+  //   modules.push(pansharpenBrovey);
+  // }
 
   // Load colormap
   // Only load if landsatBandCombination is not RGB
@@ -137,12 +135,12 @@ async function getTileData({
   }
 
   // Await all images together
-  await Promise.all([imagePan, imageBands, imageColormap]);
+  await Promise.all([imageBands, imageColormap]);
 
   const images = {
     imageBands: await Promise.all(imageBands),
     imageColormap: await imageColormap,
-    imagePan: await imagePan,
+    // imagePan: await imagePan,
   };
 
   return {
@@ -153,8 +151,9 @@ async function getTileData({
 
 export async function loadImage(url) {
   const image = await load(url, ImageLoader);
-  return {
-    data: image,
-    format: image && image.height === 10 ? GL.RGB : GL.LUMINANCE,
-  };
+  // return {
+  //   data: image,
+  //   format: 'r32float',
+  // };
+  return image;
 }
