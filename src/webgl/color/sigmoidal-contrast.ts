@@ -1,6 +1,12 @@
 import fs from './sigmoidal-contrast.fs.glsl';
+import type {ShaderModule} from '@luma.gl/shadertools';
 
-function getUniforms(opts = {}) {
+type SigmoidalContrastSettings = {
+  sigmoidalContrast?: number;
+  sigmoidalBias?: number;
+};
+
+function getUniforms(opts: SigmoidalContrastSettings = {}) {
   const {sigmoidalContrast, sigmoidalBias} = opts;
 
   if (!sigmoidalContrast && !sigmoidalBias) {
@@ -22,4 +28,4 @@ export default {
     image = sigmoidalContrast(image, sigmoidal_contrast, sigmoidal_bias);
     `,
   },
-};
+} as ShaderModule<SigmoidalContrastSettings>;

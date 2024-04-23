@@ -1,11 +1,17 @@
 import fs from './colormap.fs.glsl';
+import {ShaderModule} from '@luma.gl/shadertools';
 
-function getUniforms(opts = {}) {
-  const {imageColormap, colormapScaler, colormapOffset} = opts;
+type ColormapSettings = {
+  imageColormap: ImageData;
+  colormapScaler?: number;
+  colormapOffset?: number;
+};
 
-  if (!imageColormap) {
-    return;
+function getUniforms(opts?: ColormapSettings | {}): Record<string, any> {
+  if (!opts || !('imageColormap' in opts)) {
+    return {};
   }
+  const {imageColormap, colormapScaler, colormapOffset} = opts;
 
   return {
     u_colormap_texture: imageColormap,
@@ -23,4 +29,4 @@ export default {
     image = colormap(u_colormap_texture, image, colormapScaler, colormapOffset);
     `,
   },
-};
+} as ShaderModule<ColormapSettings>;

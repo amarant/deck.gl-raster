@@ -1,19 +1,22 @@
-function getUniforms(opts = {}) {
+import {UniformValue} from '@luma.gl/core';
+import {ShaderModule} from '@luma.gl/shadertools';
+
+type RgbaImageSettings = {
+  imageRgba?: ImageData;
+};
+
+function getUniforms(opts: RgbaImageSettings = {}) {
   const {imageRgba} = opts;
   if (!imageRgba) {
     return;
   }
 
   return {
-    bitmapTexture_rgba: imageRgba,
+    bitmapTexture_rgba: imageRgba as any as UniformValue,
   };
 }
 
-const fs1 = `\
-uniform sampler2D bitmapTexture_rgba;
-`;
-
-const fs2 = `\
+const fs = `\
 precision mediump float;
 precision mediump int;
 precision mediump usampler2D;
@@ -27,15 +30,14 @@ precision mediump usampler2D;
 
 export default {
   name: 'rgba-image',
-  fs1,
-  fs2,
+  fs,
   getUniforms,
   defines: {
     SAMPLER_TYPE: 'sampler2D',
   },
   inject: {
     'fs:DECKGL_CREATE_COLOR': `
-    image = vec4(texture2D(bitmapTexture_rgba, coord));
+    image = vec4(texture(bitmapTexture_rgba, coord));
     `,
   },
-};
+} as ShaderModule<RgbaImageSettings>;

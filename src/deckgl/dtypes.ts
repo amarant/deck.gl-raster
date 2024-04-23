@@ -1,4 +1,4 @@
-import GL from '@luma.gl/constants';
+import {GL} from '@luma.gl/constants';
 
 // Originally ported from viv
 // https://github.com/hms-dbmi/viv/blob/603e5e0967eec1b360623dbe51357baa6bdf71fc/src/constants.js#L12-L43

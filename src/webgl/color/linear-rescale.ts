@@ -1,6 +1,12 @@
 import fs from './linear-rescale.fs.glsl';
+import {ShaderModule} from '@luma.gl/shadertools';
 
-function getUniforms(opts = {}) {
+type LinearRescaleSettings = {
+  linearRescaleScaler?: number;
+  linearRescaleOffset?: number;
+};
+
+function getUniforms(opts: LinearRescaleSettings = {}) {
   const {linearRescaleScaler, linearRescaleOffset} = opts;
 
   if (!linearRescaleScaler && !linearRescaleOffset) {
@@ -22,4 +28,4 @@ export default {
     image = linear_rescale(image, linearRescaleScaler, linearRescaleOffset);
     `,
   },
-};
+} as ShaderModule<LinearRescaleSettings>;

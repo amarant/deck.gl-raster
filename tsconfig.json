@@ -1,0 +1,25 @@
+{
+  "include": [
+    "src",
+    "types",
+    "typings"
+  ],
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "target": "esnext",
+    "module": "es2020",
+    "moduleResolution": "node",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
+    "outDir": "dist",
+    "rootDir": "src",
+    "sourceMap": true,
+    "allowJs": true,
+    "strict": false,
+    "typeRoots": [
+      "./typings"
+    ],
+  },
+  "noImplicitAny": true,
+}

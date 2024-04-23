@@ -1,5 +1,5 @@
 // Create texture
-export {default as combineBands} from './texture/combine-bands';
+export * from './texture/combine-bands';
 export {default as rgbaImage} from './texture/rgba-image';
 export {default as maskImage} from './texture/mask-image';
 

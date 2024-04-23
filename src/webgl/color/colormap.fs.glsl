@@ -8,5 +8,5 @@ uniform float colormapOffset;
 // Default input range of value is -1 to 1
 vec4 colormap(sampler2D cmap, vec4 image, float scaler, float offset) {
   vec2 uv = vec2(scaler * image.r + offset, 0.5);
-  return texture2D(cmap, uv);
+  return texture(cmap, uv);
 }

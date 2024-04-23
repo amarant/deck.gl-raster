@@ -1,9 +1,18 @@
 import fs from './gamma-contrast.fs.glsl';
+import {ShaderModule} from '@luma.gl/shadertools';
 
-function getUniforms(opts = {}) {
+type GammaContrastSettings = {
+  gammaValue?: number;
+  gammaR?: number;
+  gammaG?: number;
+  gammaB?: number;
+  gammaA?: number;
+};
+
+function getUniforms(opts: GammaContrastSettings = {}) {
   const {gammaValue, gammaR, gammaG, gammaB, gammaA} = opts;
 
-  if (!gammaValue && (!gammaR && !gammaG && !gammaB && !gammaA)) {
+  if (!gammaValue && !gammaR && !gammaG && !gammaB && !gammaA) {
     return;
   }
 
@@ -24,4 +33,4 @@ export default {
     image = gammaContrast(image, gamma_r, gamma_g, gamma_b, gamma_a);
     `,
   },
-};
+} as ShaderModule<GammaContrastSettings>;

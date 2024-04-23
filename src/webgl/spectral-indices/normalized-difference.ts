@@ -1,4 +1,5 @@
 import fs from './normalized-difference.fs.glsl';
+import {ShaderModule} from '@luma.gl/shadertools';
 
 export default {
   name: 'normalized_difference',
@@ -8,4 +9,4 @@ export default {
     image = vec4(normalized_difference_calc(image), 0., 0., 0.);
     `,
   },
-};
+} as ShaderModule;
