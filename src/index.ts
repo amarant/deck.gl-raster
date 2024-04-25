@@ -4,3 +4,4 @@ export {WEBGL2_DTYPES} from './deckgl/dtypes';
 
 export * from './webgl/index';
 export {parseNpy as _parseNpy} from './loaders/npy-loader';
+export {loadImages} from './deckgl/images';

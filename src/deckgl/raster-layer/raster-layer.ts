@@ -28,7 +28,9 @@ type _RasterLayerProps = {
   moduleProps?: Record<string, any>;
 };
 
-export default class RasterLayer extends BitmapLayer<RasterLayerProps> {
+export default class RasterLayer<
+  ExtraPropsT extends {} = {},
+> extends BitmapLayer<ExtraPropsT & Required<_RasterLayerProps>> {
   static layerName = 'RasterLayer';
   static defaultProps = defaultProps;
 
