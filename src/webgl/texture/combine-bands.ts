@@ -53,9 +53,9 @@ function buildCombineBandsModule(n: number) {
     ${n > 2 ? 'float channel3 = float(texture(bitmapTexture_b, coord).r);' : ''}
     ${n > 3 ? 'float channel4 = float(texture(bitmapTexture_a, coord).r);' : ''}
 
-    ${n === 1 ? 'image = vec4(channel1);' : ''}
-    ${n === 2 ? 'image = vec4(channel1, channel2);' : ''}
-    ${n === 3 ? 'image = vec4(channel1, channel2, channel3);' : ''}
+    ${n === 1 ? 'image = vec4(channel1, .0, .0, .0);' : ''}
+    ${n === 2 ? 'image = vec4(channel1, channel2, .0, .0);' : ''}
+    ${n === 3 ? 'image = vec4(channel1, channel2, channel3, .0);' : ''}
     ${n === 4 ? 'image = vec4(channel1, channel2, channel3, channel4);' : ''}
     `,
     },

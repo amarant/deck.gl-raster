@@ -108,42 +108,20 @@ export default class RasterLayer extends BitmapLayer<RasterLayerProps> {
     };
   }
 
-  updateState({props, oldProps, changeFlags}: UpdateParameters<this>) {
-    // setup model first
+  updateState({props, oldProps, changeFlags, context}: UpdateParameters<this>) {
     const modulesChanged =
       props &&
       props.modules &&
       oldProps &&
       !isEqual(props.modules, oldProps.modules);
-    if (changeFlags.extensionsChanged || modulesChanged) {
-      if (this.state.model) {
-        this.state.model.destroy();
-      }
-      this.setState({model: this._getModel()});
-      this.getAttributeManager()?.invalidateAll();
-    }
 
+    changeFlags.extensionsChanged =
+      changeFlags.extensionsChanged || modulesChanged;
     if (props && props.images) {
       this.updateImages({props, oldProps});
     }
 
-    const attributeManager = this.getAttributeManager();
-
-    if (props.bounds !== oldProps.bounds) {
-      const oldMesh = this.state.mesh;
-      const mesh = this._createMesh();
-      this.state.model?.setVertexCount(mesh.vertexCount);
-      for (const key in mesh) {
-        if (oldMesh && oldMesh[key] !== (mesh as any)[key]) {
-          attributeManager?.invalidate(key);
-        }
-      }
-      this.setState({mesh, ...this._getCoordinateUniforms()});
-    } else if (
-      props._imageCoordinateSystem !== oldProps._imageCoordinateSystem
-    ) {
-      this.setState(this._getCoordinateUniforms());
-    }
+    super.updateState({props, oldProps, changeFlags, context});
   }
 
   updateImages({
