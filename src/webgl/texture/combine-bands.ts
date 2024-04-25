@@ -12,7 +12,26 @@ const textureNames = [
   'bitmapTexture_a',
 ];
 
-function buildCombineBandsModule(n: number) {
+const moduleCache = new Map<string, ShaderModule<CombineBandsSettings>>();
+
+type SamplerType = 'sampler2D' | 'usampler2D';
+type ShaderType = 'vs' | 'fs';
+
+const getModuleKey = (
+  n: number,
+  samplerType: SamplerType,
+  shaderType: ShaderType
+) => `${n}-${samplerType}-${shaderType}`;
+
+function getCombineBandsModule(
+  n: number,
+  samplerType: SamplerType = 'sampler2D',
+  shaderType: ShaderType = 'fs'
+) {
+  const moduleKey = getModuleKey(n, samplerType, shaderType);
+  if (moduleCache.has(moduleKey)) {
+    return moduleCache.get(moduleKey);
+  }
   function getUniforms(opts: CombineBandsSettings = {}) {
     const {imageBands} = opts;
     if (!imageBands || imageBands.length === 0) {
@@ -25,29 +44,17 @@ function buildCombineBandsModule(n: number) {
     return uniforms;
   }
 
-  const fs = `\
-#ifdef SAMPLER_TYPE
-  uniform SAMPLER_TYPE bitmapTexture_r;
-  ${n > 1 ? 'uniform SAMPLER_TYPE bitmapTexture_g;' : ''}
-  ${n > 2 ? 'uniform SAMPLER_TYPE bitmapTexture_b;' : ''}
-  ${n > 3 ? 'uniform SAMPLER_TYPE bitmapTexture_a;' : ''}
-#else
-  uniform sampler2D bitmapTexture_r;
-  ${n > 1 ? 'uniform sampler2D bitmapTexture_g;' : ''}
-  ${n > 2 ? 'uniform sampler2D bitmapTexture_b;' : ''}
-  ${n > 3 ? 'uniform sampler2D bitmapTexture_a;' : ''}
-#endif
-`;
-
-  return {
-    name: `combine-bands-${n}`,
-    fs,
+  const shader =
+    `uniform ${samplerType} bitmapTexture_r;` +
+    (n > 1 ? `uniform ${samplerType} bitmapTexture_g;` : '') +
+    (n > 2 ? `uniform ${samplerType} bitmapTexture_b;` : '') +
+    (n > 3 ? `uniform ${samplerType} bitmapTexture_a;` : '');
+  const module = {
+    name: `combine-bands-${moduleKey}`,
+    [shaderType]: shader,
     getUniforms,
-    defines: {
-      SAMPLER_TYPE: 'sampler2D',
-    },
     inject: {
-      'fs:DECKGL_CREATE_COLOR': `
+      [`${shaderType}:DECKGL_CREATE_COLOR`]: `
     float channel1 = float(texture(bitmapTexture_r, coord).r);
     ${n > 1 ? 'float channel2 = float(texture(bitmapTexture_g, coord).r);' : ''}
     ${n > 2 ? 'float channel3 = float(texture(bitmapTexture_b, coord).r);' : ''}
@@ -60,32 +67,8 @@ function buildCombineBandsModule(n: number) {
     `,
     },
   } as ShaderModule<CombineBandsSettings>;
+  moduleCache.set(moduleKey, module);
+  return module;
 }
 
-const combineBands1 = buildCombineBandsModule(1);
-const combineBands2 = buildCombineBandsModule(2);
-const combineBands3 = buildCombineBandsModule(3);
-const combineBands4 = buildCombineBandsModule(4);
-
-const getCombineBandsModule = (n: number) => {
-  switch (n) {
-    case 1:
-      return combineBands1;
-    case 2:
-      return combineBands2;
-    case 3:
-      return combineBands3;
-    case 4:
-      return combineBands4;
-    default:
-      throw new Error('Invalid number of bands');
-  }
-};
-
-export {
-  combineBands1,
-  combineBands2,
-  combineBands3,
-  combineBands4,
-  getCombineBandsModule,
-};
+export {getCombineBandsModule};
